@@ -56,5 +56,5 @@ Application Streamlit interactive permettant de prédire le risque de désabonne
 ### ✅ 1. Cloner le projet
 
 ```bash
-git clone https://github.com/votre-utilisateur/telco-churn-dashboard.git
+git clone https://github.com/baba1108/telco-churn-dashboard.git
 cd telco-churn-dashboard
