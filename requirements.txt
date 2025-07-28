@@ -6,3 +6,4 @@ imblearn==0.0
 matplotlib
 seaborn
 joblib
+pillow==9.5.0
