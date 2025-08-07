@@ -3,7 +3,6 @@ pandas
 numpy
 matplotlib
 pillow
-imblearn
 seaborn
 joblib
 setuptools
