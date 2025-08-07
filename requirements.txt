@@ -8,3 +8,4 @@ joblib
 setuptools
 scikit-learn
 scipy
+imblearn 
