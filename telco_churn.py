@@ -30,14 +30,14 @@ y = data['Churn']
 
 # SMOTE to handle imbalance
 sm = SMOTE(random_state=42)
-X_train_smote, y_train_smote = sm.fit_resample(X, y)
+X_resampled, y_resampled = sm.fit_resample(X, y)
 # X_train_smote, y_train_smote = sm.fit_resample(X_train, y_train)
 
 # Train or load model
 MODEL_PATH = "rf_model.pkl"
 if not os.path.exists(MODEL_PATH):
     model = RandomForestClassifier(n_estimators=100, random_state=42)
-    model.fit(X_train_smote, y_train_smote)
+    model.fit(X_resampled, y_resampled)
     joblib.dump(model, MODEL_PATH)
 else:
     model = joblib.load(MODEL_PATH)
