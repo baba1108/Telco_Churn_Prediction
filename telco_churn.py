@@ -30,7 +30,7 @@ X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_
 
 # SMOTE to handle imbalance
 sm = SMOTE(random_state=42)
-X_train_smote, y_train_smote = sm.fit_sample(X_train, y_train)
+X_train_smote, y_train_smote = sm.fit_resample(X_train, y_train)
 
 # Train or load model
 MODEL_PATH = "rf_model.pkl"
