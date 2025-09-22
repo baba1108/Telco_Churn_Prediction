@@ -23,28 +23,25 @@ data_raw.drop(columns=['customerID'], inplace=True)
 data_raw['Churn'] = data_raw['Churn'].map({'No': 0, 'Yes': 1})
 data = pd.get_dummies(data_raw, drop_first=True)
 
-# Train/test split
-X = data.drop('Churn', axis=1)
-y = data['Churn']
-# X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+# Split train/test (décommentez cette ligne pour définir X_train, X_test, y_train, y_test)
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
 
-# SMOTE to handle imbalance
+# SMOTE pour gérer le déséquilibre sur l'ensemble d'entraînement
 sm = SMOTE(random_state=42)
-X_resampled, y_resampled = sm.fit_resample(X, y)
-# X_train_smote, y_train_smote = sm.fit_resample(X_train, y_train)
+X_train_resampled, y_train_resampled = sm.fit_resample(X_train, y_train)
 
-# Train or load model
+# Entraîner ou charger le modèle
 MODEL_PATH = "rf_model.pkl"
 if not os.path.exists(MODEL_PATH):
     model = RandomForestClassifier(n_estimators=100, random_state=42)
-    model.fit(X_resampled, y_resampled)
+    model.fit(X_train_resampled, y_train_resampled)
     joblib.dump(model, MODEL_PATH)
 else:
     model = joblib.load(MODEL_PATH)
 
-# Predictions
-y_pred = model.predict(X_test)
-y_prob = model.predict_proba(X_test)[:, 1]
+# Prédictions
+y_pred = model.predict(X_test)  # Définir y_pred avec X_test
+y_prob = model.predict_proba(X_test)[:, 1]  # Probabilités pour la courbe ROC
 
 # Streamlit layout
 st.set_page_config(page_title="Telco Churn Dashboard", layout="wide")
