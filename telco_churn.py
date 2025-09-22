@@ -13,39 +13,54 @@ from sklearn.metrics import confusion_matrix, roc_curve, auc, classification_rep
 from imblearn.over_sampling import SMOTE
 from sklearn.model_selection import train_test_split
 
-# Load and preprocess data
-data_raw = pd.read_csv("WA_Fn-UseC_-Telco-Customer-Churn.csv")
+# Chargement des données
+st.set_page_config(page_title="Telco Churn Dashboard", layout="wide")
+st.title("📊 Telco Churn Prediction Dashboard")
 
-# Data preprocessing
+try:
+    data_raw = pd.read_csv("WA_Fn-UseC_-Telco-Customer-Churn.csv")
+    st.success("✅ Données chargées avec succès")
+except FileNotFoundError:
+    st.error("❌ Le fichier CSV est introuvable. Assure-toi qu'il est bien présent dans le dossier.")
+    st.stop()
+except Exception as e:
+    st.error(f"Erreur lors du chargement : {e}")
+    st.stop()
+
+# Prétraitement
 data_raw['TotalCharges'] = pd.to_numeric(data_raw['TotalCharges'], errors='coerce')
 data_raw.dropna(inplace=True)
 data_raw.drop(columns=['customerID'], inplace=True)
 data_raw['Churn'] = data_raw['Churn'].map({'No': 0, 'Yes': 1})
 data = pd.get_dummies(data_raw, drop_first=True)
 
-# Split train/test (décommentez cette ligne pour définir X_train, X_test, y_train, y_test)
-X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+# Séparation des features/target
+X = data.drop('Churn', axis=1)
+y = data['Churn']
 
-# SMOTE pour gérer le déséquilibre sur l'ensemble d'entraînement
+# Split train/test
+X_train, X_test, y_train, y_test = train_test_split(
+    X, y, test_size=0.2, random_state=42
+)
+
+# Application du SMOTE uniquement sur le train
 sm = SMOTE(random_state=42)
 X_train_resampled, y_train_resampled = sm.fit_resample(X_train, y_train)
 
-# Entraîner ou charger le modèle
+# Entraînement ou chargement du modèle
 MODEL_PATH = "rf_model.pkl"
 if not os.path.exists(MODEL_PATH):
     model = RandomForestClassifier(n_estimators=100, random_state=42)
     model.fit(X_train_resampled, y_train_resampled)
     joblib.dump(model, MODEL_PATH)
+    st.success("✅ Modèle entraîné et sauvegardé")
 else:
     model = joblib.load(MODEL_PATH)
+    st.success("✅ Modèle chargé depuis le disque")
 
 # Prédictions
-y_pred = model.predict(X_test)  # Définir y_pred avec X_test
-y_prob = model.predict_proba(X_test)[:, 1]  # Probabilités pour la courbe ROC
-
-# Streamlit layout
-st.set_page_config(page_title="Telco Churn Dashboard", layout="wide")
-st.title("📊 Telco Churn Prediction Dashboard")
+y_pred = model.predict(X_test)
+y_prob = model.predict_proba(X_test)[:, 1]
 
 # Section 1: Vue d'ensemble
 st.header("1. Vue d'ensemble")
@@ -123,8 +138,8 @@ pred = model.predict(input_df)[0]
 pred_prob = model.predict_proba(input_df)[0][1]
 
 st.subheader("Résultat de prédiction")
-st.write(f"Probabilité de churn : {pred_prob*100:.2f}%")
-st.write(f"Prédiction : {'Churn' if pred == 1 else 'Pas de churn'}")
+st.write(f"**Probabilité de churn** : `{pred_prob*100:.2f}%`")
+st.write(f"**Prédiction** : {'🛑 Churn' if pred == 1 else '✅ Pas de churn'}")
 
 # Section 6: Exploration des clients churners
 st.header("6. Exploration des clients churners")
